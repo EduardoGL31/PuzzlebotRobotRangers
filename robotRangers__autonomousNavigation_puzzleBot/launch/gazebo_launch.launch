@@ -1,5 +1,8 @@
+<?xml version="1.0" ?>
 <!-- Gazebo launch file -->
 <launch>
+  <!-- Load the URDF into the parameter server -->
+  <param name="robot_description" textfile="$(find robotRangers__autonomousNavigation_puzzleBot)/urdf/puzzlebot_jetson_ed_urdf.urdf"/>
   <!-- Variables/arguments default declaration (used if not defined in shell when launching) -->
   <arg name="use_sim_time" default="true" />
   <arg name="gui" default="true" />
@@ -7,6 +10,11 @@
   <!-- Load the map model -->
   <arg name="world_name" default="$(find robotRangers__autonomousNavigation_puzzleBot)/worlds/ADJIC _map.world"/>
   <arg name="robot_configuration" default="complete" />
+
+  <!-- Launch RVIZ mapping configuration -->
+  <param name="use_gui" value="true"/>
+  <arg name="config" default="map_config_2d"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robotRangers__autonomousNavigation_puzzleBot)/rviz/$(arg config).rviz"/>
 
   <!-- Launch Gazebo with the specified world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
