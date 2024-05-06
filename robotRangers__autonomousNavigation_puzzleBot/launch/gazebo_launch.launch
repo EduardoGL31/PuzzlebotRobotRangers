@@ -29,12 +29,6 @@
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
     args="-urdf -model puzzlebot_jetson_ed_urdf -param robot_description -x 0.1 -y 0.0 -z 0.0"/>
 
-  <!-- Publish TF static transforms found in xacro/urdf file -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" 
-    respawn="false" output="screen"/>
-
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" 
-    respawn="false" output="screen"/>
 
   <!-- Launch nodes needed to move the Puzzlebot -->
   <node name="input" pkg="puzzlebot_sim" type="set_point.py" output="screen"/>
@@ -42,5 +36,9 @@
   <node name="puzzlebot_kinematic_model" pkg="puzzlebot_sim" type="puzzlebot_kinematic_model.py" output="screen"/>
   <node name="Joint_State_Publisher" pkg="puzzlebot_sim" type="joint_state_publisher.py" output="screen"/>
   <node name="localisation" pkg="puzzlebot_sim" type="localisation.py" output="screen"/>
+
+  <!-- Publish TF static transforms found in xacro/urdf file -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" 
+    respawn="false" output="screen"/>
 
 </launch>
