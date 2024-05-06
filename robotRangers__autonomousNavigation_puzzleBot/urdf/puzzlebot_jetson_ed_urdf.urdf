@@ -32,10 +32,13 @@
         </visual>
     </link>
 
-    <joint name="rw_joint" type="continuous">
+    <joint name="rw_joint" type="revolute">
         <parent link="chassis"/>
         <child link="rw"/>
         <origin xyz="0.05 -0.087 0.0046"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-3.1416" upper="3.1416" effort="100" velocity="3.14"/>
+        <!-- Adjust the limit and velocity according to your requirements -->
     </joint>
 
     <link name="rw">
@@ -58,10 +61,13 @@
         </visual>
     </link>
 
-    <joint name="lw_joint" type="continuous">
+    <joint name="lw_joint" type="revolute">
         <parent link="chassis"/>
         <child link="lw"/>
         <origin xyz="0.05 0.087 0.0046"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-3.1416" upper="3.1416" effort="100" velocity="3.14"/>
+        <!-- Adjust the limit and velocity according to your requirements -->
     </joint>
 
     <link name="lw">

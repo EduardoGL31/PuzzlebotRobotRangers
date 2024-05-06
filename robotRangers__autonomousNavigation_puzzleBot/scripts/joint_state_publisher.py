@@ -14,7 +14,7 @@ class Joint_State():
     # Declare the output Messages
     def __init__(self):
 
-        rospy.init_node("Joint_State_Publisher")
+        rospy.init_node("joint_state_publisher")
  
         # Configure the Node
         loop_rate = rospy.Rate(rospy.get_param("/rate",100))
