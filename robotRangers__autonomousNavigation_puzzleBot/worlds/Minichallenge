@@ -89,7 +89,7 @@
     </spherical_coordinates>
     <model name='simulation_map'>
       <static>1</static>
-      <pose>0.489093 -0.434456 0 0 -0 0</pose>
+      <pose>-0.277151 0.17921 0 0 -0 0</pose>
       <link name='walls'>
         <collision name='collision'>
           <geometry>
@@ -134,10 +134,10 @@
       </link>
     </model>
     <state world_name='default'>
-      <sim_time>161 134000000</sim_time>
-      <real_time>161 735118805</real_time>
-      <wall_time>1714437060 197063377</wall_time>
-      <iterations>161134</iterations>
+      <sim_time>34 394000000</sim_time>
+      <real_time>36 52955834</real_time>
+      <wall_time>1715014227 276101831</wall_time>
+      <iterations>34394</iterations>
       <model name='ground_plane'>
         <pose>0 0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -149,10 +149,10 @@
         </link>
       </model>
       <model name='simulation_map'>
-        <pose>0.499056 -0.323248 0 0 -0 0</pose>
+        <pose>-0.277151 0.17921 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='walls'>
-          <pose>0.499056 -0.323248 0 0 -0 0</pose>
+          <pose>-0.277151 0.17921 0 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -164,7 +164,7 @@
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>6.31466 -4.65554 2.20304 0 0.275643 2.35619</pose>
+        <pose>0.159132 0.427026 8.7294 3.14159 1.57079 3.14159</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>

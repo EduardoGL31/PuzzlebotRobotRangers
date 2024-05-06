@@ -3,44 +3,34 @@
 <launch>
   <!-- Load the URDF into the parameter server -->
   <param name="robot_description" textfile="$(find robotRangers__autonomousNavigation_puzzleBot)/urdf/puzzlebot_jetson_ed_urdf.urdf"/>
-  <!-- Variables/arguments default declaration (used if not defined in shell when launching) -->
-  <arg name="use_sim_time" default="true" />
-  <arg name="gui" default="true" />
-  <arg name="headless" default="false" />
-  <!-- Load the map model -->
-  <arg name="world_name" default="$(find robotRangers__autonomousNavigation_puzzleBot)/worlds/ADJIC _map.world"/>
   <arg name="robot_configuration" default="complete" />
 
   <!-- Launch RVIZ mapping configuration -->
   <param name="use_gui" value="true"/>
   <arg name="config" default="map_config_2d"/>
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robotRangers__autonomousNavigation_puzzleBot)/rviz/$(arg config).rviz"/>
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robotRangers__autonomousNavigation_puzzleBot)/rviz/$(arg config).rviz"/> -->
 
-  <!-- Launch Gazebo with the specified world -->
+   <!-- Launch Gazebo with an empty world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="debug" value="0" />
-    <arg name="gui" value="$(arg gui)" />
-    <arg name="use_sim_time" value="$(arg use_sim_time)" />
-    <arg name="headless" value="$(arg headless)" />
-    <arg name="world_name" value="$(arg world_name)" />
+      <arg name="paused" value="false"/>
+      <arg name="use_sim_time" value="true"/>
+      <arg name="gui" value="true"/>
+      <arg name="headless" value="false"/>
   </include>
 
    <!-- Spawn the URDF model -->
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
     args="-urdf -model puzzlebot_jetson_ed_urdf -param robot_description -x 0.0 -y 0.0 -z 0.0"/>
 
-
   <!-- Launch nodes needed to move the Puzzlebot -->
   <!-- <node name="input" pkg="puzzlebot_sim" type="set_point.py" output="screen"/> -->
   <!-- <node name="controller" pkg="puzzlebot_sim" type="controller.py" output="screen"/> -->
   <node name="puzzlebot_kinematic_model" pkg="robotRangers__autonomousNavigation_puzzleBot" type="puzzlebot_kinematic_model.py" output="screen"/>
-  <!-- <node name="joint_state_publisher" pkg="robotRangers__autonomousNavigation_puzzleBot" type="joint_state_publisher.py" output="screen"/> -->
+  <node name="joint_state_publisher" pkg="robotRangers__autonomousNavigation_puzzleBot" type="joint_state_publisher.py" output="screen"/>
   <node name="localisation" pkg="robotRangers__autonomousNavigation_puzzleBot" type="localisation.py" output="screen"/>
 
   <!-- Publish TF static transforms found in xacro/urdf file -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" 
-    respawn="false" output="screen"/>
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" 
     respawn="false" output="screen"/>
 
 </launch>
