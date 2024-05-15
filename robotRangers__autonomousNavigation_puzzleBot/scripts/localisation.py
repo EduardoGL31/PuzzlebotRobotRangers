@@ -4,10 +4,9 @@ import rospy
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Float32 
 from tf.transformations import quaternion_from_euler 
+from geometry_msgs.msg import PoseArray, Pose 
 import numpy as np 
 from geometry_msgs.msg import TransformStamped
-import tf2_ros
-from tf2_msgs.msg import TFMessage
  
 #This class will do the following: 
 #   subscribe to /wr and /wl
@@ -22,13 +21,13 @@ class OdomClass():
         rospy.Subscriber("wl", Float32, self.wl_cb) 
         rospy.Subscriber("wr", Float32, self.wr_cb) 
         # Create ROS publishers 
-        self.odom_pub = rospy.Publisher('odom', Odometry ,queue_size=1) #Publisher to pose_sim topic 
-        #tf_pub = tf2_ros.TransformBroadcaster()
-        pub = rospy.Publisher('/tf', TFMessage, queue_size=10)
+        self.odom_pub = rospy.Publisher('odom', Odometry ,queue_size=1) #Publisher to odom topic 
+        self.pose_array_pub = rospy.Publisher("pose_array_topic", PoseArray, queue_size=1) #Publisher to pose array topic 
 
         t = TransformStamped() 
-        t2 = TransformStamped() 
-        t3 = TransformStamped() 
+
+        # Create a PoseArray message 
+        self.pose_array_msg = PoseArray() 
 
         ############ ROBOT CONSTANTS ################  
         self.r = 0.05 #puzzlebot wheel radius [m] 
@@ -48,107 +47,61 @@ class OdomClass():
 
         self.odom = Odometry()
 
+        #Gains for wl and wr
+        self.kl = 0.3
+        self.kr = 0.25
+
+        self.sigma_k = np.array([[0.0, 0.0], [0.0, 0.0]])
+
+        self.mu = np.array([[0.0], [0.0], [0.0]]) #X Y Theta
+        
+        self.sigma = np.zeros((3,3))
+
+        self.get_pose_array()
+
+        # Set the header information (frame ID and timestamp) 
+        self.pose_array_msg.header.frame_id = 'odom' 
+        self.pose_array_msg.header.stamp = rospy.Time.now() 
                 
         rate = rospy.Rate(int(1.0/self.dt)) # The rate of the while loop will be the inverse of the desired delta_t 
         while not rospy.is_shutdown(): 
 
             self.get_robot_vel() 
             self.update_robot_pose()
-            self.get_pose_odometry(self.theta)
- 
-            ######## Publish the data ################# 
-            self.odom_pub.publish(self.odom)
+            self.get_pose_odometry(self.theta, self.sigma)
+
+            self.sigma_k[0][0] = self.kr * np.abs(self.wr)
+            self.sigma_k[1][1] = self.kl * np.abs(self.wl)
+
+            #self.sigma_k = np.array([[self.kr * np.abs(self.wr), 0],
+                                     #[0, self.kl * np.abs(self.wl)]])
+
+            self.gradient_w = 0.5 * self.r * self.dt * (np.array([[np.cos(self.theta_ant), np.cos(self.theta_ant)], 
+                                                                  [np.sin(self.theta_ant), np.sin(self.theta_ant)], 
+                                                                  [2.0/self.L, -2.0/self.L]]))
+
+
+            #self.Q = self.gradient_w.dot(self.sigma_k).dot(self.gradient_w.T)
+            self.Q = self.gradient_w @ self.sigma_k @ self.gradient_w.T
+
+
+            self.H = np.array([[1.0, 0.0, -(self.dt * self.v * np.sin(self.theta_ant))], 
+                               [0.0, 1.0, self.dt * self.v * np.cos(self.theta_ant)], 
+                               [0.0, 0.0, 1.0]])
+
+            self.mu = np.array([[self.x + (self.v * self.dt * np.cos(self.theta))],
+                                [self.y + (self.v * self.dt * np.sin(self.theta))],
+                                [self.theta + (self.dt * self.w)]])
+             
+            
+            self.sigma = self.H.dot(self.sigma).dot(self.H.T) + self.Q
+
+            #self.update_robot_pose()
+            #self.get_pose_odometry(self.theta, self.sigma)
+
+            self.pose_array_pub.publish(self.pose_array_msg)
+
             rate.sleep() 
-
-            t.header.stamp = rospy.Time.now() 
-
-            t.header.frame_id = "base_link" 
-
-            t.child_frame_id = "chassis"
-
-            t.transform.translation.x = self.x 
-
-            t.transform.translation.y = self.y 
-
-            t.transform.translation.z = 0.0 
-
-
-            #The transformation requires the orientation as a quaternion 
-
-            #q = quaternion_from_euler(0, 0, theta) 
-
-            t.transform.rotation.x = self.odom.pose.pose.orientation.x
-
-            t.transform.rotation.y = self.odom.pose.pose.orientation.y
-
-            t.transform.rotation.z = self.odom.pose.pose.orientation.z
-
-            t.transform.rotation.w = self.odom.pose.pose.orientation.w
-
-            # A transformation is broadcasted instead of published 
-
-            #tf_pub.sendTransform(t) #broadcast the transformation 
-
-            t2.header.stamp = rospy.Time.now() 
-
-            t2.header.frame_id = "base_link" 
-
-            t2.child_frame_id = "lw_link"
-
-            t2.transform.translation.x = self.x 
-
-            t2.transform.translation.y = self.y 
-
-            t2.transform.translation.z = 0.0 
-
-
-            #The transformation requires the orientation as a quaternion 
-
-            #q = quaternion_from_euler(0, 0, theta) 
-
-            t2.transform.rotation.x = self.odom.pose.pose.orientation.x
-
-            t2.transform.rotation.y = self.odom.pose.pose.orientation.y
-
-            t2.transform.rotation.z = self.odom.pose.pose.orientation.z
-
-            t2.transform.rotation.w = self.odom.pose.pose.orientation.w
-
-
-
-            t3.header.stamp = rospy.Time.now() 
-
-            t3.header.frame_id = "base_link" 
-
-            t3.child_frame_id = "rw_link"
-
-            t3.transform.translation.x = self.x 
-
-            t3.transform.translation.y = self.y 
-
-            t3.transform.translation.z = 0.0 
-
-
-            #The transformation requires the orientation as a quaternion 
-
-            #q = quaternion_from_euler(0, 0, theta) 
-
-            t3.transform.rotation.x = self.odom.pose.pose.orientation.x
-
-            t3.transform.rotation.y = self.odom.pose.pose.orientation.y
-
-            t3.transform.rotation.z = self.odom.pose.pose.orientation.z
-
-            t3.transform.rotation.w = self.odom.pose.pose.orientation.w
-
-            tf_message = TFMessage()
-            tf_message.transforms.append(t)
-            tf_message.transforms.append(t2)
-            tf_message.transforms.append(t3)
-        
-            # Publicar el mensaje TFMessage
-            pub.publish(tf_message)
-
 
      
     def wl_cb(self, msg): 
@@ -161,14 +114,15 @@ class OdomClass():
         self.v = self.r * ((self.wr + self.wl) / 2.0)
         self.w = self.r * ((self.wr - self.wl) / self.L)
 
-    def get_pose_odometry(self, yaw): 
+    def get_pose_odometry(self, yaw, Sigma): 
         # Write the data as a ROS PoseStamped message 
         self.odom.header.frame_id = "odom"    #This can be changed in this case I'm using a frame called odom. 
-        self.odom.child_frame_id = "odom2"
+        self.odom.child_frame_id = "base_link"
         self.odom.header.stamp = rospy.Time.now() 
         # Position 
         self.odom.pose.pose.position.x = self.x
         self.odom.pose.pose.position.y = self.y
+
 
         # Rotation of the mobile base frame w.r.t. "odom" frame as a quaternion 
         quat = quaternion_from_euler(0, 0, yaw) 
@@ -176,6 +130,23 @@ class OdomClass():
         self.odom.pose.pose.orientation.y = quat[1] 
         self.odom.pose.pose.orientation.z = quat[2] 
         self.odom.pose.pose.orientation.w = quat[3] 
+
+        # Init a 36 elements array 
+        odom_array = np.array([[Sigma[0][0], Sigma[0][1], 0, 0, 0, Sigma[0][2]],
+                                              [Sigma[1][0], Sigma[1][1], 0.0, 0, 0, Sigma[1][2]],
+                                              [0, 0, 0, 0, 0, 0],
+                                              [0, 0, 0, 0, 0, 0],
+                                              [0, 0, 0, 0, 0, 0],
+                                              [Sigma[2][0], Sigma[2][1], 0, 0, 0, Sigma[2][2]]
+        ])
+
+        self.odom.pose.covariance = odom_array.flatten().tolist()
+
+        # Fill the speed information 
+        self.odom.twist.twist.linear.x = self.v 
+        self.odom.twist.twist.angular.z = self.w 
+
+        self.odom_pub.publish(self.odom)
 
     def update_robot_pose(self): 
         #This functions receives the robot speed v [m/s] and w [rad/s] 
@@ -189,6 +160,22 @@ class OdomClass():
         self.x_ant = self.x
         self.y_ant = self.y
         self.theta_ant = self.theta
+        
+    def get_pose_array(self):
+        for i in range(len(self.Xmedida)):
+            pose = Pose()
+            pose.position.x = self.Xmedida[i]
+            pose.position.y = self.Ymedida[i]
+            pose.position.z = 0
+
+            theta = 0
+            quat = quaternion_from_euler(0.0, 0.0, theta) 
+            pose.orientation.x = quat[0] 
+            pose.orientation.y = quat[1] 
+            pose.orientation.z = quat[2] 
+            pose.orientation.w = quat[3] 
+            pose.orientation.w = 1.0 
+            self.pose_array_msg.poses.append(pose) 
 
 
  

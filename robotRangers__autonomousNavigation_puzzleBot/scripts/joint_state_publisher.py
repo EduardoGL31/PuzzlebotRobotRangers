@@ -3,10 +3,8 @@ import rospy
 import numpy as np
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32 
+from geometry_msgs.msg import Quaternion
 
-# Declare the output Messages
-
-#q = tf_conversions.transformations.quaternion_from_euler(0, 0, 0.0)
 contJoints = JointState()
 
 class Joint_State():
@@ -14,7 +12,7 @@ class Joint_State():
     # Declare the output Messages
     def __init__(self):
 
-        rospy.init_node("joint_state_publisher")
+        rospy.init_node("Joint_State_Publisher")
  
         # Configure the Node
         loop_rate = rospy.Rate(rospy.get_param("/rate",100))
@@ -23,18 +21,28 @@ class Joint_State():
         self.wl = 0.0
         self.wr = 0.0
 
+        self.l = 0.0
+        self.r = 0.0
+        self.dt = 0.02
+
+         # Inicializa las orientaciones de las articulaciones en cuaterniones
+        self.l_orientation = Quaternion(0.0, 0.0, 0.0, 1.0)  # Identidad (sin rotación)
+        self.r_orientation = Quaternion(0.0, 0.0, 0.0, 1.0)  # Identidad (sin rotación)
+
         rospy.Subscriber("wl", Float32, self.wl_cb) 
         rospy.Subscriber("wr", Float32, self.wr_cb) 
 
         joint_pub = rospy.Publisher('/joint_states', JointState, queue_size=1)
 
 
-        contJoints.header.frame_id = "chassis"
+        contJoints.header.frame_id = "base_link"
         contJoints.header.stamp = rospy.Time.now()
-        contJoints.name.extend(["lw_joint", "rw_joint"])
+        contJoints.name.extend(["base_to_left_w", "base_to_right_w"])
         contJoints.position.extend([0.0, 0.0])
         contJoints.velocity.extend([0.0, 0.0])
         contJoints.effort.extend([0.0, 0.0])
+
+
 
         print("The Estimator is Running")
         try:
@@ -42,8 +50,9 @@ class Joint_State():
             while not rospy.is_shutdown(): 
                 t = rospy.Time.now().to_sec()
                 contJoints.header.stamp = rospy.Time.now()
-                contJoints.position[0] = self.wrap_to_Pi(self.wl)
-                contJoints.position[1] = self.wrap_to_Pi(self.wr)
+                self.calculate_velocity()
+                contJoints.position[0] = self.l
+                contJoints.position[1] = self.r
                 
                 joint_pub.publish(contJoints)
 
@@ -65,6 +74,14 @@ class Joint_State():
         if(result < 0):
             result += 2 * np.pi
         return result - np.pi
+
+    def calculate_velocity(self):
+        # Calcula el cambio en el ángulo de rotación
+        self.l += self.wl * self.dt
+        self.r += self.wr * self.dt
+
+        # Publica los ángulos de las articulaciones
+        contJoints.position = [self.l, self.r]
 
         #Stop Condition
     def stop(self):

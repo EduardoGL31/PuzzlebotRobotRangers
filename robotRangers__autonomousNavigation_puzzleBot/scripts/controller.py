@@ -5,7 +5,6 @@ import rospy
 from geometry_msgs.msg import Twist 
 from geometry_msgs.msg import Pose
 from std_msgs.msg import Float32 
-from nav_msgs.msg import Odometry
 
 import numpy as np 
 
@@ -24,14 +23,13 @@ class GoToGoal():
 
         self.pub_cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=1)  
         self.pub_flag = rospy.Publisher('flag',Float32,queue_size=1)
-        #self.pub_position = rospy.Publisher('position', Pose, queue_size=1)  
+        self.pub_position = rospy.Publisher('position', Pose, queue_size=1)  
 
         ############## SUBSCRIBERS ##################  
 
         rospy.Subscriber("wl", Float32, self.wl_cb)  
         rospy.Subscriber("wr", Float32, self.wr_cb)  
         rospy.Subscriber("set_point", Pose, self.goal_cb)
-        rospy.Subscriber("odom", Odometry, self.odom_cb)
 
 
         #### Init variables ## 
@@ -48,9 +46,9 @@ class GoToGoal():
         ki_l = 0.00001
         kd_l = 0.0
 
-        kp_a = 4.0
-        ki_a = 0.000001
-        kd_a = 0.0000001
+        kp_a = 4.8
+        ki_a = 0.0000001
+        kd_a = 0.00000006
 
         self.e=[0.0,0.0,0.0]
         #e[0] error actual    e[1] error anterior    e[2] error dos veces anterior
@@ -62,7 +60,7 @@ class GoToGoal():
         self.u_a=[0.0,0.0]
         #u[0] salida actual    u[1] salida anterior
 
-        Ts = 0.002 
+        Ts = 0.02 
         #periodo de muestreo
 
         #ganancias del modelo discreto
@@ -87,7 +85,7 @@ class GoToGoal():
         w = 0.0 # Robot's angular speed [rad/s] 
         self.wl = 0.0 # left wheel angular speed [rad/s] 
         self.wr = 0.0 # right wheel angular speed [rad/s] 
-        d=10000000.0 
+        d = 0.0 
         d_min = 0.1 #[m] d_min to the goal to declare the robot arrived  
 
         while rospy.get_time == 0: 
@@ -95,7 +93,7 @@ class GoToGoal():
         print("I got a valid time") 
 
         previous_time = rospy.get_time() #I will use this to compute delta_t 
-        rate = rospy.Rate(20) #20Hz  
+        rate = rospy.Rate(1/Ts) #20Hz  
         print("Node initialized") 
 
         while not rospy.is_shutdown(): 
@@ -160,7 +158,7 @@ class GoToGoal():
                 v_msg.angular.z = 0.0 
                 rate.sleep()
             
-            #self.pub_position.publish(position)
+            self.pub_position.publish(position)
             self.pub_cmd_vel.publish(v_msg) 
             
             rate.sleep()  
@@ -177,10 +175,6 @@ class GoToGoal():
     def wr_cb(self, wr):  
         ## This function receives the right wheel speed from the encoders 
         self.wr = wr.data  
-    
-    def odom_cb(self, msg):
-        self.xr = msg.pose.pose.position.x
-        self.yr = msg.pose.pose.position.y
 
     def cleanup(self):  
         #This function is called just before finishing the node  
