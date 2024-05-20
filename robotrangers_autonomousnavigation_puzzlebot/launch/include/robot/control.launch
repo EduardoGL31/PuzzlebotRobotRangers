@@ -1,0 +1,17 @@
+<!-- Control launch file -->
+<launch>
+
+  <node name="puzzlebot_controller" pkg="robotrangers_autonomousnavigation_puzzlebot" type="robotrangers_autonomousnavigation_puzzlebot_node"/>
+
+  <node name="localisation" pkg="robotrangers_autonomousnavigation_puzzlebot" type="localisation.py"/>
+  <!-- <node name="tf_transform" pkg="robotrangers_autonomousnavigation_puzzlebot" type="tf_coord.py"/> -->
+  
+  <!-- Launching gazebo movement -->
+  <include file="$(find robotrangers_autonomousnavigation_puzzlebot)/launch/include/robot/puzzlebot_control.launch"/> 
+
+  <!-- To be able to teleop my robot through RVIZ using interactive markers -->
+  <node pkg="interactive_marker_twist_server" type="marker_server" 
+        name="twist_marker_server">
+    <remap from="twist_marker_server/cmd_vel" to="cmd_vel"/>
+  </node>
+</launch>

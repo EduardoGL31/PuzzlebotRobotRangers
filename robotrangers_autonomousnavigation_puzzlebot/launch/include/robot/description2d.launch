@@ -1,0 +1,12 @@
+<!-- Load robot_description to ros parameter server and create TF tree from xacro/urdf file -->
+<launch>
+  <arg name="config" default="base" />
+
+  <!-- Load the URDF into the parameter server -->
+    <!--load robot description -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find robotrangers_autonomousnavigation_puzzlebot)/urdf/puzzlebot_lidar.xacro'" />
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+
+  <node name="joint_state_publisher"  pkg="joint_state_publisher" type="joint_state_publisher"/>
+</launch>

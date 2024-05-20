@@ -1,0 +1,30 @@
+<!-- Main launch file for simulation with 2D LiDAR -->
+<launch>
+    <remap from="/front/scan" to="/scan"/>
+
+    <!-- Launching gazebo maze simulation -->
+    <include file="$(find robotrangers_autonomousnavigation_puzzlebot)/launch/include/gazebo_launch.launch"/> 
+
+    <!-- Launching Rviz with mapping configuration (only uncomment when 
+    creating the map of the environment) -->
+    <!-- <include file="$(find robotrangers_autonomousnavigation_puzzlebot)/launch/include/rviz/rviz_launch_2d.launch"/> -->
+
+    <!-- Launch robot control complete TF tree -->
+    <include file="$(find robotrangers_autonomousnavigation_puzzlebot)/launch/include/robot/control.launch"/>
+
+    <!-- Launching Rviz with navigation visualization -->
+    <include file="$(find robotrangers_autonomousnavigation_puzzlebot)/launch/include/rviz/rviz_launch_nav_2d.launch"/> 
+
+    <!-- Launch robot spawning -->
+    <include file="$(find robotrangers_autonomousnavigation_puzzlebot)/launch/include/robot/spawner2d.launch"/> 
+
+    <!-- Launching ROS Navigation Stack nodes -->
+    <!-- Launch gmapping node and move base to generate map of environment -->
+    <!-- This is only done one time to generate the map, it should be commented 
+    once the map is obtained -->
+    <!-- <include file="$(find robotrangers_autonomousnavigation_puzzlebot)/launch/include/start_mapping_2d.launch"/> -->
+
+    <!-- Launch map, localization and navigation -->
+    <include file="$(find robotrangers_autonomousnavigation_puzzlebot)/launch/include/start_navigating_2d.launch"/>
+
+</launch>
