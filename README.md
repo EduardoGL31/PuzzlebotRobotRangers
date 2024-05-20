@@ -1,4 +1,14 @@
 # Robotics and intelligent systems
-  ## ROS Navigation Stack con simulación
-  Este repositorio contiene el codigo y los archivos necesarios para abordar la Actividad 3.5 donde tenemos que crear el mapa de nuestro entorno y simular el viaje del robot desde el inicio de la pista hasta el final evadiendo cualquier obstaculo.
 
+  ## ROS Navigation Stack con simulación
+  This repository is detined for the puzzlebot robot with a camera and a LiDAR sensor mounted. The main objective of this project is navigate through a series of points defined and estimated position based on the dynamic model.
+
+## To get this workspace running
+First clone the repository
+
+```
+https://github.com/EduardoGL31/PuzzlebotRobotRangers.git
+```
+
+
+##
