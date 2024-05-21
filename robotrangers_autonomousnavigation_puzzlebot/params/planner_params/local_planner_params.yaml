@@ -55,7 +55,7 @@ TrajectoryPlannerROS:
   #Also controls speed
   goal_distance_bias: 1.0 #Default: 0.8 (0 - 5 range)
   #The weighting for how much the controller should attempt to avoid obstacles
-  occdist_scale: 0.00 #Default: 0.01
+  occdist_scale: 0.01 #Default: 0.01
   #How far to look ahead in meters diferentiating between different rotational velocities
   heading_lookahead: 0.01 #Default: 0.325
   #Whether to score based on the robot's heading to the path or its distance from the path. default false
@@ -88,7 +88,7 @@ TrajectoryPlannerROS:
   #Controller tolerance in yaw/rotation when achieving its goal (radians)
   yaw_goal_tolerance: 0.314 #Default: 0.05
   #Controller tolerance in x and y when achieving its goal (meters)
-  xy_goal_tolerance: 0.1 #Default: 0.10
+  xy_goal_tolerance: 0.25 #Default: 0.10
   #If true, then the robot will rotate in place once it reaches its goal and might
   #go out of the goal tolerance
   latch_xy_goal_tolerance: false #Default: false

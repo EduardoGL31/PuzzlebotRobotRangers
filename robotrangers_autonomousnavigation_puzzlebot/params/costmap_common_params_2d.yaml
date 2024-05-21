@@ -7,9 +7,9 @@ z_voxels: 2
 #Set threshold distance (in meters).
 #If something is above the threshold it won't appear in the map.
 #This helps save computer resources
-obstacle_range: 3.0 #So costmap will only be updated with obstacles that are within 2.5m from the robot
+obstacle_range: 0.5 #So costmap will only be updated with obstacles that are within 2.5m from the robot
 
-raytrace_range: 2.5 #Related to freespace. If no obstacle is detected the area within
+raytrace_range: 1.0 #Related to freespace. If no obstacle is detected the area within
 #3m from the robot will be marked as free space
 
 publish_voxel_map: true
@@ -39,7 +39,7 @@ obstacles_layer:
 #In charge of inflating (blue color in RVIZ) each cell with an obstacle
 inflater_layer:
   #Increased for better detecting obstacles
-  inflation_radius: 0.12
+  inflation_radius: 0.1
   #Scaling factor to apply cost values during inflation
   #cost_scaling_factor: 10.0 #Default: 10.0
 
