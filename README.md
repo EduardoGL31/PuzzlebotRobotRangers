@@ -1,9 +1,14 @@
-# TE3003B RobotRangers
-  ## Introduction
-   * This course, developed by Manchester Robotics ltd. (MCR2), aims to provide students with understanding of modern autonomous systems.
-   * This course is divided into ten sessions, carefully designed for the user to learn about the problems of localisation and provide students with an overview on main topics encountered in autonomous systems field such as localization techniques, navigation, and intelligent path-planning.
-   * This course will be based on challenges to make the student aware of the problems faced during the implementation of advanced intelligent algorithms in robotics.
-   * This branch contains all the presentations, activities and files required for the “TE3003B: Integration of Robotics and Intelligent Systems” course of the Tec de Monterrey.
-   * This repository is organised by sessions, each subfolder contains all the neccesary files for each one of the activities of this course.
+# Robotics and intelligent systems
+
+  ## ROS Navigation Stack con simulación
+  This repository is detined for the puzzlebot robot with a camera and a LiDAR sensor mounted. The main objective of this project is navigate through a series of points defined and estimated position based on the dynamic model.
+
+## To get this workspace running
+First clone the repository
+
+```
+https://github.com/EduardoGL31/PuzzlebotRobotRangers.git
+```
 
 
+##
