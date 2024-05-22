@@ -110,8 +110,8 @@ class PuzzlebotLocClass():
 
 
         self.odometry.header.stamp = rospy.Time.now()
-        self.odometry.header.frame_id = "odom"
-        self.odometry.child_frame_id = "base_link"
+        self.odometry.header.frame_id = "map"
+        self.odometry.child_frame_id = "odom"
 
 
         # Fill the pose information

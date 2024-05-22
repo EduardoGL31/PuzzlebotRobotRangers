@@ -7,14 +7,14 @@ global_costmap:
    #Only used in local_costmap
    update_frequency: 20.0
    publish_frequency: 5.0
-   width: 5.0
-   height: 5.0
+   width: 2.0
+   height: 3.0
    resolution: 0.01
-   origin_x: -0.1
-   origin_y: -1.85
+   origin_x: -10.1
+   origin_y: -9.7
 
    #Deprecated
-   #static_map: true
+   static_map: true
    #Default is false
    rolling_window: false
 
